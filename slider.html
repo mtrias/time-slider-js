@@ -26,7 +26,9 @@
         <div id="slider2"></div>
     </div>
     <script>
-        var ts = d3.timeSlider();
+        var ts = d3.timeSlider().onChange(function (value) {
+            console.warn("Value changed to", value);
+        });
         d3.select('#slider1').call(ts);
     </script>
 </body>

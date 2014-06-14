@@ -11,7 +11,7 @@ d3.timeSlider = function module() {
     };
 
     // Public variables
-    var axis = true,
+    var axis,
         value,
         handles = {from: undefined, until: undefined},
         active = FROM,
@@ -24,6 +24,7 @@ d3.timeSlider = function module() {
 
     // Private variables
     var container,
+        callbacks = {},
         dispatch = d3.dispatch("slide", "slideend"),
         pctFormat = d3.format(".2%"),
         tickFormat = d3.format(".0"),
@@ -221,11 +222,20 @@ d3.timeSlider = function module() {
                 }
             }
 
+            function notifyChange()
+            {
+                if (_.has(callbacks, 'change')) {
+                    callbacks.change(value);
+                }
+            }
+
             function onClick()
             {
                 var pos = d3.event.offsetX || d3.event.layerX,
                     currLpos = val2left(value[FROM]),
                     currRpos = val2left(value[UNTIL]);
+
+                console.log(pos, d3.event.x);
 
                 // moving the closest handler
                 active = UNTIL;
@@ -234,6 +244,7 @@ d3.timeSlider = function module() {
                 }
 
                 moveHandle(pos);
+                notifyChange();
             }
 
             function onDrag()
@@ -249,6 +260,7 @@ d3.timeSlider = function module() {
                 }
 
                 moveHandle(Math.max(0, Math.min(width, d3.event.x)));
+                notifyChange();
             }
 
             function stopPropagation()
@@ -263,6 +275,13 @@ d3.timeSlider = function module() {
     timeSlider.value = function(set) {
         if (!arguments.length) return value;
         value = set;
+        return timeSlider;
+    };
+
+    timeSlider.onChange = function(callback) {
+        if (arguments.length) {
+            callbacks.change = callback;
+        }
         return timeSlider;
     };
 

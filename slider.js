@@ -49,6 +49,9 @@ d3.timeSlider = function module() {
 
         formatters = {
             pct: d3.format(".2%"),
+            secondsAgo: function (seconds) {
+                return moment().subtract('seconds', seconds).format("h:ma - ll");
+            },
             tick: function (seconds) {
 
                 if (seconds < 1 * MIN) {
@@ -176,13 +179,8 @@ d3.timeSlider = function module() {
                 right: formatters.pct(scale(value[ UNTIL ]))
             });
 
-            // position the tooltips for the first time
-            tooltips[FROM].style("right", formatters.pct(scale.invert(value[ FROM ])));
-
-            // position the right handler at the initial value
-            tooltips[UNTIL].style("right", formatters.pct(scale.invert(value[ UNTIL ])));
-
             updateTooltipsText();
+            updateTooltipsPosition();
 
             createAxis(mainDiv);
 
@@ -206,10 +204,21 @@ d3.timeSlider = function module() {
             // ----
 
 
-            function updateTooltipsText () {
+            function updateTooltipsText() {
                 tooltips['mouse'].html('mouse');
-                tooltips[FROM].html(value[FROM]);
-                tooltips[UNTIL].html(value[UNTIL]);
+
+                var d = moment();
+
+                tooltips[FROM].html( formatters.secondsAgo(value[FROM]) );
+                tooltips[UNTIL].html( formatters.secondsAgo(value[UNTIL]) );
+            }
+
+            function updateTooltipsPosition() {
+                // position the tooltips for the first time
+                tooltips[FROM].style("right", formatters.pct(scale.invert(value[ FROM ])));
+
+                // position the right handler at the initial value
+                tooltips[UNTIL].style("right", formatters.pct(scale.invert(value[ UNTIL ])));
             }
 
             function show(node)
@@ -320,6 +329,7 @@ d3.timeSlider = function module() {
                 }
 
                 updateTooltipsText();
+                updateTooltipsPosition();
             }
 
             function notifyChange()

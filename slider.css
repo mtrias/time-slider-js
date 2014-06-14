@@ -93,4 +93,5 @@
     line-height: 0.3em;
     border-radius: .2em;
     border: 1px solid #ddd;
+    white-space: no-wrap;
 }

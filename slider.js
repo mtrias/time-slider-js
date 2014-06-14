@@ -2,41 +2,15 @@ d3.timeSlider = function module() {
     "use strict";
 
 
-    var FROM = 'from', UNTIL = 'until', MIN = 60, HOUR = 60 * MIN, DAY = 24 * HOUR;
+    var FROM = 'from', UNTIL = 'until',
 
-    var CONF = {
-        axis: {
-            height: 30
-        }
-    };
+        MIN = 60, HOUR = 60 * MIN, DAY = 24 * HOUR,
 
-    // Public variables
-    var axis,
-        value,
-        handles = {from: undefined, until: undefined},
-        active = FROM,
-
-        /**
-         * The scale of the slider, it transforms the domain [0, 1] (a percentage of the slider) to the range of time
-         * Is really a polylinear scale, so the domain is not just [0, 1] but a serie of intermediate numbers, as well as the range
-         */
-        scale;
-
-    // Private variables
-    var container,
-        callbacks = {},
-        pctFormat = d3.format(".2%"),
-        tickFormat = d3.format(".0"),
-        width,
-        axisScale,
-        axisSvg,
-        axisContainer;
-
-    function timeSlider(selection)
-    {
-        selection.each(function() {
-
-            var timeSteps = _([
+        CONF = {
+            axis: {
+                height: 30
+            },
+            steps: [
                 0,
                 10 * MIN,
                 30 * MIN,
@@ -45,8 +19,54 @@ d3.timeSlider = function module() {
                 12 * HOUR,
                 1 * DAY,
                 7 * DAY,
-                30 * DAY]
-            ).sortBy().value();
+                30 * DAY
+            ]
+        },
+
+        axis,
+
+        value,
+
+        handles = {
+            from: undefined,
+            until: undefined
+        },
+
+        /**
+         * The active handle
+         */
+        active = FROM,
+
+        /**
+         * The scale of the slider, it transforms the domain [0, 1] (a percentage of the slider) to the range of time
+         * Is really a polylinear scale, so the domain is not just [0, 1] but a serie of intermediate numbers, as well as the range
+         */
+        scale,
+
+        container,
+
+        callbacks = {},
+
+        formatters = {
+            pct: d3.format(".2%"),
+            tick: d3.format(".0"),
+        },
+
+        width,
+
+        axisScale,
+
+        axisContainer;
+
+
+    // ----
+
+
+    function timeSlider(selection)
+    {
+        selection.each(function() {
+
+            var timeSteps = _(CONF.steps).sortBy().value();
 
             // working on a simplified range for now
             var range = [timeSteps[0], timeSteps[1]];
@@ -90,18 +110,22 @@ d3.timeSlider = function module() {
             var slice = d3.select(this).append('div').classed("time-slider-range", true);
 
             // position the left handler at the initial value
-            handles[FROM].style("right", pctFormat(scale.invert(value[ FROM ])));
+            handles[FROM].style("right", formatters.pct(scale.invert(value[ FROM ])));
 
             // position the right handler at the initial value
-            handles[UNTIL].style("right", pctFormat(scale.invert(value[ UNTIL ])));
+            handles[UNTIL].style("right", formatters.pct(scale.invert(value[ UNTIL ])));
 
             // position the range rectangle at the initial value
             slice.style({
-                left: (100 - parseFloat(pctFormat(scale.invert(value[ FROM ])))) + "%",
-                right: pctFormat(scale(value[ UNTIL ]))
+                left: (100 - parseFloat(formatters.pct(scale.invert(value[ FROM ])))) + "%",
+                right: formatters.pct(scale(value[ UNTIL ]))
             });
 
             createAxis(container);
+
+
+            // ----
+
 
             drag.on("drag", onDrag);
 
@@ -111,9 +135,10 @@ d3.timeSlider = function module() {
             d3.select(window).on('resize', function () {
                 width = parseInt(container.style("width"), 10);
                 axisScale.range([width, 0]);
-                axisSvg.attr("width", width);
+                axisContainer.attr("width", width);
                 axisContainer.transition().call(axis);
             });
+
 
             // ----
 
@@ -122,7 +147,7 @@ d3.timeSlider = function module() {
             {
                 axis = d3.svg.axis()
                     .ticks(Math.round(width / 100))
-                    .tickFormat(tickFormat)
+                    .tickFormat(formatters.tick)
                     .orient("bottom");
 
                 var axis_range = [width, 0];
@@ -134,22 +159,20 @@ d3.timeSlider = function module() {
                 axis.scale(axisScale);
 
                 // Create SVG axis container
-                axisSvg = container.append("svg")
+                axisContainer = container.append("svg")
                     .classed("time-slider-axis time-slider-axis-" + axis.orient(), true)
                     .on("click", stopPropagation);
 
-                axisContainer = axisSvg.append("g");
-
                 // axis
 
-                axisSvg.attr({
+                axisContainer.attr({
                     width: width,
                     height: CONF.axis.height
                 });
 
                 if (axis.orient() === "top")
                 {
-                    axisSvg.style("top", "-" + CONF.axis.height + "px");
+                    axisContainer.style("top", "-" + CONF.axis.height + "px");
                 } else { // bottom
                 }
 
@@ -189,8 +212,8 @@ d3.timeSlider = function module() {
                 console.debug('clicked position: %f/%2f, value: %f', pos, (width - pos) / width, newValue);
 
                 if (currentValue !== newValue) {
-                    var oldPos = pctFormat(val2pct(currentValue)),
-                        newPos = pctFormat(val2pct(newValue));
+                    var oldPos = formatters.pct(val2pct(currentValue)),
+                        newPos = formatters.pct(val2pct(newValue));
 
                     value[active] = newValue;
                     console.log("New value {from:%s, until:%s} %s changed. New pos %s", value.from, value.until, active, newPos);
@@ -263,6 +286,10 @@ d3.timeSlider = function module() {
         });
 
     }
+
+
+    // ----
+
 
     timeSlider.value = function(set) {
         if (!arguments.length) return value;

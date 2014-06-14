@@ -71,7 +71,9 @@ d3.timeSlider = function module() {
 
         axisScale,
 
-        axisContainer;
+        axisContainer,
+
+        drag = d3.behavior.drag();
 
 
     // ----
@@ -84,6 +86,8 @@ d3.timeSlider = function module() {
 
             // working on a simplified range for now
             var
+                mainDiv = d3.select(this),
+
                 //timeSteps = _(CONF.steps).sortBy().value(),
                 //range = [timeSteps[0], timeSteps[4]],
                 range = _(CONF.steps).sortBy().value(),
@@ -101,28 +105,52 @@ d3.timeSlider = function module() {
             // Initial value
             value = value || {from: CONF.steps[1], until: range[0]};
 
+
+            mainDiv.classed("time-slider", true);
+
+            // tooltips
+            var tooltipsContainer = mainDiv.append('div').attr("class", "tooltips");
+
+            var tooltips = {
+                FROM: tooltipsContainer.append('div').attr("class", FROM),
+                UNTIL: tooltipsContainer.append('div').attr("class", UNTIL),
+            }
+
+            // hover DIV
+            var sliderDiv = mainDiv.append('div')
+                .attr("class", "slider");
+
+
+            mainDiv.on('click', onClick)
+                .on('mouseenter', function () {
+                    console.log("in");
+                }).on('mouseleave', function () {
+                    console.log("out")
+                });
+
+
             // main DIV container
-            container = d3.select(this).classed("time-slider", true);
+            var area = sliderDiv.append('div').classed("area", true);
+
+
 
             // cache the slider width
-            width = parseInt(container.style("width"), 10);
-
-            var drag = d3.behavior.drag();
+            width = parseInt(area.style("width"), 10);
 
             // from slider handle
-            handles[FROM] = container.append("a")
-                .attr("class", "time-slider-handle handle-from")
+            handles[FROM] = area.append("a")
+                .attr("class", "handle from")
                 .on("click", stopPropagation)
                 .call(drag);
 
             // until slider handle
-            handles[UNTIL] = container.append("a")
-                .attr("class", "time-slider-handle handle-until")
+            handles[UNTIL] = area.append("a")
+                .attr("class", "handle until")
                 .on("click", stopPropagation)
                 .call(drag);
 
             // interval marker
-            var slice = container.append('div').classed("time-slider-range", true);
+            var slice = area.append('div').classed("slice", true);
 
             // position the left handler at the initial value
             handles[FROM].style("right", formatters.pct(scale.invert(value[ FROM ])));
@@ -136,7 +164,7 @@ d3.timeSlider = function module() {
                 right: formatters.pct(scale(value[ UNTIL ]))
             });
 
-            createAxis(container);
+            createAxis(mainDiv);
 
 
             // ----
@@ -144,7 +172,7 @@ d3.timeSlider = function module() {
 
             drag.on("drag", onDrag);
 
-            container.on("click", onClick);
+            sliderDiv.on("click", onClick);
 
             // Adjust all things after a window resize
             d3.select(window).on('resize', function () {
@@ -164,6 +192,8 @@ d3.timeSlider = function module() {
                     .ticks(Math.round(width / 100))
                     .tickFormat(formatters.tick)
                     .tickValues(CONF.steps)
+                    .tickPadding(6)
+                    .tickSize(8)
                     .orient("bottom");
 
                 //var axis_domain = [range[0], range[range.length - 1]];
@@ -183,8 +213,11 @@ d3.timeSlider = function module() {
 
                 // Create SVG axis container
                 axisContainer = container.append("svg")
-                    .classed("time-slider-axis time-slider-axis-" + axis.orient(), true)
+                    .classed("axis", true)
                     .on("click", stopPropagation);
+
+                // For now we also accept clicks on the svg, to make it easy to use
+                axisContainer.on('click', onClick);
 
                 // axis
 

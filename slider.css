@@ -1,18 +1,23 @@
 .time-slider {
+    margin: 0 .6em .6em .6em;
+    padding-top: 1.5em;
+    cursor: pointer;
+}
+
+.time-slider .slider .area {
     position: relative;
-    font-family: Verdana, Arial, sans-serif;
-    font-size: 1.1em;
-    border: 1px solid #aaaaaa;
+    border: 1px solid #707077;
     border-left: none;
     z-index: 2;
     height: .4em;
     top: -.3em;
-    margin: .6em;
     cursor: pointer;
+    background: #707077;
 }
 
-.time-slider-range {
-    background: #606066;
+.time-slider .slider .slice {
+    background: #6c6;
+    background: linear-gradient(to bottom, #6c6 0%, #1c1 100%);
     left: 0px;
     right: 0px;
     height: 0.4em;
@@ -22,14 +27,14 @@
     pointer-events: none;
 }
 
-.time-slider-handle {
+.time-slider .slider .handle {
     position: absolute;
     width: .5em;
     height: .5em;
-    border: 4px solid #606066;
+    border: 4px solid #707077;
     border-radius: .5em;
-    background: #ddd;
-    background: linear-gradient(to bottom, #eee 0%, #bbb 100%);
+    background: #6c6;
+    background: linear-gradient(to bottom, #6c6 0%, #1c1 100%);
     z-index: 3;
     top: -.25em;
     margin-right: -.5em;
@@ -37,38 +42,33 @@
     cursor: ew-resize;
 }
 
-.time-slider-handle.handle-from {
+.time-slider .slider .handle.from {
     margin-left: .6em;
 }
 
-.time-slider-handle.handle-until {
+.time-slider .slider .handle.until {
 
 }
 
-.time-slider-axis {
-    position: relative;
-    z-index: 1;
+
+
+/* Axis */
+
+.time-slider .axis {
+    stroke-width: 2px;
 }
 
-.time-slider-axis-bottom {
-    top: .8em;
-}
-
-.time-slider-axis-right {
-    left: .8em;
-}
-
-.time-slider-axis path {
+.time-slider .axis path {
     stroke-width: 0;
     fill: none;
 }
 
-.time-slider-axis line {
+.time-slider .axis line {
     fill: none;
     stroke: #aaa;
     shape-rendering: crispEdges;
 }
 
-.time-slider-axis text {
+.time-slider .axis text {
     font-size: 11px;
 }

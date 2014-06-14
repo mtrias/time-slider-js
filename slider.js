@@ -23,7 +23,8 @@ d3.timeSlider = function module() {
         scale;
 
     // Private variables
-    var dispatch = d3.dispatch("slide", "slideend"),
+    var container,
+        dispatch = d3.dispatch("slide", "slideend"),
         pctFormat = d3.format(".2%"),
         tickFormat = d3.format(".0"),
         width,
@@ -67,7 +68,7 @@ d3.timeSlider = function module() {
             console.debug("initial value", value);
 
             // DIV container
-            var container = d3.select(this).classed("time-slider", true);
+            container = d3.select(this).classed("time-slider", true);
 
             // cache the slider width
             width = parseInt(container.style("width"), 10);
@@ -223,15 +224,15 @@ d3.timeSlider = function module() {
             function onClick()
             {
                 var pos = d3.event.offsetX || d3.event.layerX,
-                    leftPos = val2left(value[FROM]);
+                    currLpos = val2left(value[FROM]),
+                    currRpos = val2left(value[UNTIL]);
 
+                // moving the closest handler
                 active = UNTIL;
-
-                if (pos < leftPos){
+                if (Math.abs(pos - currLpos) < Math.abs(pos - currRpos)){
                     active = FROM;
                 }
 
-                console.debug("Decided active=%s. pos=%f %f->leftPos=%f", active, pos, value[FROM], leftPos);
                 moveHandle(pos);
             }
 

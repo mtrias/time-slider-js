@@ -43,6 +43,10 @@
     cursor: ew-resize;
 }
 
+.time-slider .slider .handle.active {
+    border: 4px solid #909099;
+}
+
 .time-slider .slider .handle.from {
     margin-left: .6em;
 }

@@ -25,7 +25,6 @@ d3.timeSlider = function module() {
     // Private variables
     var container,
         callbacks = {},
-        dispatch = d3.dispatch("slide", "slideend"),
         pctFormat = d3.format(".2%"),
         tickFormat = d3.format(".0"),
         width,
@@ -74,9 +73,6 @@ d3.timeSlider = function module() {
             width = parseInt(container.style("width"), 10);
 
             var drag = d3.behavior.drag();
-            drag.on('dragend', function () {
-                dispatch.slideend(d3.event, value);
-            });
 
             // from slider handle
             handles[FROM] = container.append("a")
@@ -115,7 +111,6 @@ d3.timeSlider = function module() {
             d3.select(window).on('resize', function () {
                 width = parseInt(container.style("width"), 10);
                 axisScale.range([width, 0]);
-                d3.rebind(timeSlider, dispatch, "on");
                 axisSvg.attr("width", width);
                 axisContainer.transition().call(axis);
             });
@@ -198,9 +193,7 @@ d3.timeSlider = function module() {
                         newPos = pctFormat(val2pct(newValue));
 
                     value[active] = newValue;
-                    console.log("New value {from:%s, until:%s} %s changed", value.from, value.until, active);
-                    console.log("New pos %s", newPos);
-                    dispatch.slide(d3.event, value );
+                    console.log("New value {from:%s, until:%s} %s changed. New pos %s", value.from, value.until, active, newPos);
 
                     if ( value[ FROM ] <= value[ UNTIL ] ) { console.warn('problem', value); return; }
 
@@ -283,8 +276,6 @@ d3.timeSlider = function module() {
         }
         return timeSlider;
     };
-
-    d3.rebind(timeSlider, dispatch, "on");
 
     return timeSlider;
 

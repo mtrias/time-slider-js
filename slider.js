@@ -112,20 +112,32 @@ d3.timeSlider = function module() {
             var tooltipsContainer = mainDiv.append('div').attr("class", "tooltips");
 
             var tooltips = {
-                FROM: tooltipsContainer.append('div').attr("class", FROM),
-                UNTIL: tooltipsContainer.append('div').attr("class", UNTIL),
-            }
+                from: tooltipsContainer.append('div').attr("class", FROM),
+                until: tooltipsContainer.append('div').attr("class", UNTIL),
+                mouse: tooltipsContainer.append('div').attr("class", 'mouse'),
+            };
 
             // hover DIV
             var sliderDiv = mainDiv.append('div')
                 .attr("class", "slider");
 
+            // receive clicks in the main area so it's easy to select times.
+            mainDiv.on('click', onClick);
 
-            mainDiv.on('click', onClick)
-                .on('mouseenter', function () {
-                    console.log("in");
+            // tooltips control
+            mainDiv.on('mouseenter', function ()
+                {
+                    updateTooltipsText();
+                    hide(tooltips[FROM]);
+                    hide(tooltips[UNTIL]);
+                    show(tooltips['mouse']);
+
                 }).on('mouseleave', function () {
-                    console.log("out")
+                    updateTooltipsText();
+                    show(tooltips[FROM]);
+                    show(tooltips[UNTIL]);
+                    hide(tooltips['mouse']);
+
                 });
 
 
@@ -164,6 +176,14 @@ d3.timeSlider = function module() {
                 right: formatters.pct(scale(value[ UNTIL ]))
             });
 
+            // position the tooltips for the first time
+            tooltips[FROM].style("right", formatters.pct(scale.invert(value[ FROM ])));
+
+            // position the right handler at the initial value
+            tooltips[UNTIL].style("right", formatters.pct(scale.invert(value[ UNTIL ])));
+
+            updateTooltipsText();
+
             createAxis(mainDiv);
 
 
@@ -185,6 +205,21 @@ d3.timeSlider = function module() {
 
             // ----
 
+
+            function updateTooltipsText () {
+                tooltips['mouse'].html('mouse');
+                tooltips[FROM].html(value[FROM]);
+                tooltips[UNTIL].html(value[UNTIL]);
+            }
+
+            function show(node)
+            {
+                node.style("visibility", "visible");
+            }
+
+            function hide(node) {
+                node.style("visibility", "hidden");
+            }
 
             function createAxis(container)
             {
@@ -283,6 +318,8 @@ d3.timeSlider = function module() {
 
                     handles[active].transition().styleTween("right", interpolator(oldPos, newPos));
                 }
+
+                updateTooltipsText();
             }
 
             function notifyChange()

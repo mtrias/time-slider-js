@@ -64,11 +64,10 @@ d3.timeSlider = function module() {
             console.debug("range", range);
 
 
-            // Start value
+            // Initial value
             value = value || {from: range[1], until: range[0]};
-            console.debug("initial value", value);
 
-            // DIV container
+            // main DIV container
             container = d3.select(this).classed("time-slider", true);
 
             // cache the slider width
@@ -82,27 +81,25 @@ d3.timeSlider = function module() {
             // from slider handle
             handles[FROM] = container.append("a")
                 .attr("class", "time-slider-handle handle-from")
-                .attr("xlink:href", "#")
                 .on("click", stopPropagation)
                 .call(drag);
 
             // until slider handle
             handles[UNTIL] = container.append("a")
                 .attr("class", "time-slider-handle handle-until")
-                .attr("xlink:href", "#")
                 .on("click", stopPropagation)
                 .call(drag);
 
             // interval marker
             var slice = d3.select(this).append('div').classed("time-slider-range", true);
 
-            // position the left handler
+            // position the left handler at the initial value
             handles[FROM].style("right", pctFormat(scale.invert(value[ FROM ])));
 
-            // position the right handler
+            // position the right handler at the initial value
             handles[UNTIL].style("right", pctFormat(scale.invert(value[ UNTIL ])));
 
-            // position the range rectangle
+            // position the range rectangle at the initial value
             slice.style({
                 left: (100 - parseFloat(pctFormat(scale.invert(value[ FROM ])))) + "%",
                 right: pctFormat(scale(value[ UNTIL ]))
@@ -187,7 +184,9 @@ d3.timeSlider = function module() {
                 return scale((width - pos) / width);
             }
 
-            // Move slider handle on click/drag
+            /**
+             * Given a position of a mouse click, moves one slider handle to that position
+             */
             function moveHandle(pos)
             {
                 var newValue = pos2val(pos),

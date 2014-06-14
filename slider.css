@@ -1,0 +1,74 @@
+.time-slider {
+    position: relative;
+    font-family: Verdana, Arial, sans-serif;
+    font-size: 1.1em;
+    border: 1px solid #aaaaaa;
+    border-left: none;
+    z-index: 2;
+    height: .4em;
+    top: -.3em;
+    margin-top: .6em;
+    cursor: pointer;
+}
+
+.time-slider-range {
+    background: #606066;
+    left: 0px;
+    right: 0px;
+    height: 0.4em;
+    position: absolute;
+
+    /* click events should happen only in the slider to get the correct coordinates */
+    pointer-events: none;
+}
+
+.time-slider-handle {
+    position: absolute;
+    width: .5em;
+    height: .5em;
+    border: 4px solid #606066;
+    border-radius: .5em;
+    background: #ddd;
+    background: linear-gradient(to bottom, #eee 0%, #bbb 100%);
+    z-index: 3;
+    top: -.25em;
+    margin-right: -.5em;
+    margin-bottom: -.6em;
+    cursor: ew-resize;
+}
+
+.time-slider-handle.handle-from {
+    margin-left: .6em;
+}
+
+.time-slider-handle.handle-until {
+
+}
+
+.time-slider-axis {
+    position: relative;
+    z-index: 1;
+}
+
+.time-slider-axis-bottom {
+    top: .8em;
+}
+
+.time-slider-axis-right {
+    left: .8em;
+}
+
+.time-slider-axis path {
+    stroke-width: 0;
+    fill: none;
+}
+
+.time-slider-axis line {
+    fill: none;
+    stroke: #aaa;
+    shape-rendering: crispEdges;
+}
+
+.time-slider-axis text {
+    font-size: 11px;
+}

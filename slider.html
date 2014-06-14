@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+    <style>
+
+        body {
+            margin: 50px;
+        }
+
+        .container {
+            margin-bottom: 3em;
+            height: 50px;
+        }
+
+    </style>
+    <link rel="stylesheet" href="slider.css" />
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
+    <script src="slider.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div id="slider1"></div>
+    </div>
+    <div class="container">
+        <div id="slider2"></div>
+    </div>
+    <script>
+        var ts = d3.timeSlider();
+        d3.select('#slider1').call(ts);
+    </script>
+</body>

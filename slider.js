@@ -84,12 +84,13 @@ d3.timeSlider = function module() {
 
             // working on a simplified range for now
             var
-                timeSteps = _(CONF.steps).sortBy().value(),
-                range = [timeSteps[0], timeSteps[4]],
+                //timeSteps = _(CONF.steps).sortBy().value(),
+                //range = [timeSteps[0], timeSteps[4]],
+                range = _(CONF.steps).sortBy().value(),
 
                 // working on a simplyfied scale for now
-                // var domain = _.map(range, function (val, ind, range) { return ind ? ind/(range.length - 1) : 0; } )
-                domain = [0, 1];
+                domain = _.map(range, function (val, ind, range) { return ind ? ind/(range.length - 1) : 0; } );
+                //domain = [0, 1];
 
             scale.range( range ).domain( domain );
 
@@ -121,7 +122,7 @@ d3.timeSlider = function module() {
                 .call(drag);
 
             // interval marker
-            var slice = d3.select(this).append('div').classed("time-slider-range", true);
+            var slice = container.append('div').classed("time-slider-range", true);
 
             // position the left handler at the initial value
             handles[FROM].style("right", formatters.pct(scale.invert(value[ FROM ])));
@@ -165,11 +166,18 @@ d3.timeSlider = function module() {
                     .tickValues(CONF.steps)
                     .orient("bottom");
 
-                var axis_range = [width, 0];
-                // var axis_range = _.map(scale.domain(), function (val, ind, domain) { return ind ? (width / domain.length) * ind : 0; });
+                //var axis_domain = [range[0], range[range.length - 1]];
+                //var axis_range = [width, 0];
+                //var axis_domain = _.map(scale.range(), function (seconds) { return moment().add('s', seconds).toDate(); });
+                //var axis_domain = _.map(scale.range(), function (val, ind, domain) { return ind ? (width / domain.length) * ind : 0; });
+                var axis_domain = scale.range(),
+                    axis_range = _.chain(scale.domain()).map(function (val) { return val * width; }).reverse().value();
+
+                console.log("axis domain", axis_domain);
+                console.log("axis range", axis_range);
 
                 axisScale = scale.copy()
-                    .domain([range[0], range[range.length - 1]])
+                    .domain(axis_domain)
                     .range(axis_range);
                 axis.scale(axisScale);
 
@@ -187,8 +195,7 @@ d3.timeSlider = function module() {
                     .call(axis);
             }
 
-            function interpolator (oldVal, newVal)
-            {
+            function interpolator (oldVal, newVal) {
                 return function () {
                     return d3.interpolate(oldVal, newVal);
                 };

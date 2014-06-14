@@ -50,9 +50,14 @@ d3.timeSlider = function module() {
         formatters = {
             pct: d3.format(".2%"),
             secondsAgo: function (seconds) {
+                if (0 == seconds) return 'now';
                 return moment().subtract('seconds', seconds).format("h:ma - ll");
             },
             tick: function (seconds) {
+
+                if (0 === seconds) {
+                    return 'now';
+                }
 
                 if (seconds < 1 * MIN) {
                     return seconds + 's';
@@ -106,7 +111,7 @@ d3.timeSlider = function module() {
 
 
             // Initial value
-            value = value || {from: CONF.steps[1], until: range[0]};
+            value = value || {from: CONF.steps[3], until: range[0]};
 
 
             mainDiv.classed("time-slider", true);
@@ -120,6 +125,14 @@ d3.timeSlider = function module() {
                 mouse: tooltipsContainer.append('div').attr("class", 'mouse'),
             };
 
+            tooltips.from.html('from:<br/>');
+            tooltips.until.html('to:<br/>');
+
+            var tooltipTexts = {
+                from: tooltips.from.append('span'),
+                until: tooltips.until.append('span')
+            }
+
             // hover DIV
             var sliderDiv = mainDiv.append('div')
                 .attr("class", "slider");
@@ -128,20 +141,31 @@ d3.timeSlider = function module() {
             mainDiv.on('click', onClick);
 
             // tooltips control
-            mainDiv.on('mouseenter', function ()
-                {
-                    updateTooltipsText();
-                    hide(tooltips[FROM]);
-                    hide(tooltips[UNTIL]);
-                    show(tooltips['mouse']);
+            mainDiv.on('mousemove', function () {
 
-                }).on('mouseleave', function () {
-                    updateTooltipsText();
-                    show(tooltips[FROM]);
-                    show(tooltips[UNTIL]);
-                    hide(tooltips['mouse']);
+                updateTooltipsText();
+                updateMouseTooltip(d3.event.offsetX || d3.event.layerX);
 
-                });
+                var pos = d3.event.offsetX || d3.event.layerX,
+                    active = nearestHandler(pos);
+                tooltipTexts[active].classed('active', true);
+                tooltipTexts[invert(active)].classed('active', false);
+
+            }).on('mouseenter', function () {
+
+                //show(tooltips['mouse']);
+
+            }).on('mouseleave', function () {
+
+                tooltipTexts[FROM].classed('active', false);
+                tooltipTexts[UNTIL].classed('active', false);
+
+                updateTooltipsText();
+                // show(tooltips[FROM]);
+                // show(tooltips[UNTIL]);
+                hide(tooltips['mouse']);
+
+            });
 
 
             // main DIV container
@@ -180,7 +204,6 @@ d3.timeSlider = function module() {
             });
 
             updateTooltipsText();
-            updateTooltipsPosition();
 
             createAxis(mainDiv);
 
@@ -204,21 +227,31 @@ d3.timeSlider = function module() {
             // ----
 
 
-            function updateTooltipsText() {
-                tooltips['mouse'].html('mouse');
+            function nearestHandler(pos) {
+                var currLpos = val2left(value[FROM]),
+                    currRpos = val2left(value[UNTIL]),
+                    active = UNTIL;
 
-                var d = moment();
+                // console.debug(pos, d3.event.x);
 
-                tooltips[FROM].html( formatters.secondsAgo(value[FROM]) );
-                tooltips[UNTIL].html( formatters.secondsAgo(value[UNTIL]) );
+                if (Math.abs(pos - currLpos) < Math.abs(pos - currRpos)){
+                    active = FROM;
+                }
+
+                return active;
             }
 
-            function updateTooltipsPosition() {
-                // position the tooltips for the first time
-                tooltips[FROM].style("right", formatters.pct(scale.invert(value[ FROM ])));
+            function updateTooltipsText() {
+                tooltipTexts[FROM].text( formatters.secondsAgo(value[FROM]) );
+                tooltipTexts[UNTIL].text( formatters.secondsAgo(value[UNTIL]) );
+            }
 
-                // position the right handler at the initial value
-                tooltips[UNTIL].style("right", formatters.pct(scale.invert(value[ UNTIL ])));
+            function updateMouseTooltip(pos) {
+                var val = formatters.secondsAgo(pos2val(pos));
+                tooltips.mouse
+                    .style("left", formatters.pct( pos / width ))
+                    .text(val);
+
             }
 
             function show(node)
@@ -228,6 +261,10 @@ d3.timeSlider = function module() {
 
             function hide(node) {
                 node.style("visibility", "hidden");
+            }
+
+            function invert(handler) {
+                return (handler === UNTIL) ? FROM : UNTIL;
             }
 
             function createAxis(container)
@@ -297,27 +334,27 @@ d3.timeSlider = function module() {
             /**
              * Given a position of a mouse click, moves one slider handle to that position
              */
-            function moveHandle(pos)
+            function moveHandle(handle, pos)
             {
                 var newValue = pos2val(pos),
-                    currentValue = value[active];
+                    currentValue = value[handle];
                 console.debug('clicked position: %f/%2f, value: %f', pos, (width - pos) / width, newValue);
 
                 if (currentValue !== newValue) {
                     var oldPos = formatters.pct(val2pct(currentValue)),
                         newPos = formatters.pct(val2pct(newValue));
 
-                    value[active] = newValue;
-                    console.log("New value {from:%s, until:%s} %s changed. New pos %s", value.from, value.until, active, newPos);
+                    value[handle] = newValue;
+                    console.log("New value {from:%s, until:%s} handler:%s. New pos %s", value.from, value.until, handle, newPos);
 
                     if ( value[ FROM ] <= value[ UNTIL ] ) { console.warn('problem', value); return; }
 
-                    if ( UNTIL === active )
+                    if ( UNTIL === handle )
                     {
                         slice.transition().styleTween("right", interpolator(oldPos, newPos))
                     }
 
-                    if (FROM === active)
+                    if (FROM === handle)
                     {
                         var newRight = 100 - parseFloat(newPos) + "%";
                         var oldRight = 100 - parseFloat(oldPos) + "%";
@@ -325,11 +362,10 @@ d3.timeSlider = function module() {
                         slice.transition().styleTween("left", interpolator(oldRight, newRight));
                     }
 
-                    handles[active].transition().styleTween("right", interpolator(oldPos, newPos));
+                    handles[handle].transition().styleTween("right", interpolator(oldPos, newPos));
                 }
 
                 updateTooltipsText();
-                updateTooltipsPosition();
             }
 
             function notifyChange()
@@ -342,18 +378,10 @@ d3.timeSlider = function module() {
             function onClick()
             {
                 var pos = d3.event.offsetX || d3.event.layerX,
-                    currLpos = val2left(value[FROM]),
-                    currRpos = val2left(value[UNTIL]);
+                    active = nearestHandler(pos);
 
-                console.log(pos, d3.event.x);
-
-                // moving the closest handler
-                active = UNTIL;
-                if (Math.abs(pos - currLpos) < Math.abs(pos - currRpos)){
-                    active = FROM;
-                }
-
-                moveHandle(pos);
+                // moving the closest handler to the position _pos_
+                moveHandle(active, pos);
                 notifyChange();
             }
 
@@ -369,7 +397,7 @@ d3.timeSlider = function module() {
 
                 }
 
-                moveHandle(Math.max(0, Math.min(width, d3.event.x)));
+                moveHandle(active, Math.max(0, Math.min(width, d3.event.x)));
                 notifyChange();
             }
 

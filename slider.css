@@ -1,6 +1,6 @@
 .time-slider {
     margin: 0 .6em .6em .6em;
-    padding-top: 3em;
+    padding-top: 4em;
     cursor: pointer;
     position: relative;
 }
@@ -83,15 +83,37 @@
 }
 
 .time-slider .tooltips div {
-    background: #fafafa;
     padding: .6em;
     position: absolute;
     top: 0;
-    height: 0.3em;
-    font-size: .8em;
+    font-size: .7em;
     vertical-align: middle;
-    line-height: 0.3em;
-    border-radius: .2em;
+    line-height: 1em;
+    white-space: nowrap;
+    border-radius: .3em;
+}
+
+.time-slider .tooltips span.active {
+    font-weight: bold;
+}
+
+.time-slider .tooltips .from {
+    left: 0;
+    padding-left: 0;
+}
+
+.time-slider .tooltips .until {
+    right: 0;
+    padding-right: 0;
+}
+
+.time-slider .tooltips .mouse {
     border: 1px solid #ddd;
-    white-space: no-wrap;
+    background: #fafafa;
+    top: 65px;
+    color: #000;
+    margin-left: 20px;
+    pointer-events: none;
+    visibility: hidden;
+    opacity: .7;
 }

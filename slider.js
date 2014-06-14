@@ -49,7 +49,22 @@ d3.timeSlider = function module() {
 
         formatters = {
             pct: d3.format(".2%"),
-            tick: d3.format(".0"),
+            tick: function (seconds) {
+
+                if (seconds < 1 * MIN) {
+                    return seconds + 's';
+                }
+
+                if (seconds < 1 * HOUR) {
+                    return seconds / 60 + 'm';
+                }
+
+                if (seconds < 1 * DAY) {
+                    return seconds / (60 * 60) + 'h';
+                }
+
+                return seconds / (60 * 60 * 24) + 'd';
+            },
         },
 
         width,

@@ -38,10 +38,10 @@ d3.timeSlider = function module() {
         active = FROM,
 
         /**
-         * The scale of the slider, it transforms the domain [0, 1] (a percentage of the slider) to the range of time
+         * The scale of the slider, it transforms the domain [0, 1] (a percentage of the slider) to the range of time/seconds ago
          * Is really a polylinear scale, so the domain is not just [0, 1] but a serie of intermediate numbers, as well as the range
          */
-        scale,
+        scale = d3.scale.linear(),
 
         container,
 
@@ -66,25 +66,24 @@ d3.timeSlider = function module() {
     {
         selection.each(function() {
 
-            var timeSteps = _(CONF.steps).sortBy().value();
 
             // working on a simplified range for now
-            var range = [timeSteps[0], timeSteps[1]];
+            var
+                timeSteps = _(CONF.steps).sortBy().value(),
+                range = [timeSteps[0], timeSteps[4]],
 
-            // working on a simplyfied scale for now
-            // var domain = _.map(range, function (val, ind, range) { return ind ? ind/(range.length - 1) : 0; } )
-            var domain = [0, 1];
+                // working on a simplyfied scale for now
+                // var domain = _.map(range, function (val, ind, range) { return ind ? ind/(range.length - 1) : 0; } )
+                domain = [0, 1];
 
-                scale = d3.scale.linear()
-                    .range( range )
-                    .domain( domain );
+            scale.range( range ).domain( domain );
 
             console.debug("domain", domain);
             console.debug("range", range);
 
 
             // Initial value
-            value = value || {from: range[1], until: range[0]};
+            value = value || {from: CONF.steps[1], until: range[0]};
 
             // main DIV container
             container = d3.select(this).classed("time-slider", true);
@@ -148,6 +147,7 @@ d3.timeSlider = function module() {
                 axis = d3.svg.axis()
                     .ticks(Math.round(width / 100))
                     .tickFormat(formatters.tick)
+                    .tickValues(CONF.steps)
                     .orient("bottom");
 
                 var axis_range = [width, 0];
@@ -166,17 +166,10 @@ d3.timeSlider = function module() {
                 // axis
 
                 axisContainer.attr({
-                    width: width,
-                    height: CONF.axis.height
-                });
-
-                if (axis.orient() === "top")
-                {
-                    axisContainer.style("top", "-" + CONF.axis.height + "px");
-                } else { // bottom
-                }
-
-                axisContainer.call(axis);
+                        width: width,
+                        height: CONF.axis.height
+                    })
+                    .call(axis);
             }
 
             function interpolator (oldVal, newVal)

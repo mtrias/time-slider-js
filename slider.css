@@ -82,6 +82,14 @@
 
 }
 
+.time-slider .tooltips a {
+    color: #66f;
+}
+.time-slider .tooltips a:hover {
+    color: #00f;
+    text-decoration: underline;
+}
+
 .time-slider .tooltips div {
     padding: .6em;
     position: absolute;
@@ -93,7 +101,12 @@
     border-radius: .3em;
 }
 
-.time-slider .tooltips span.active {
+.time-slider .tooltips span, .time-slider .tooltips a {
+    float: left;
+    clear: both;
+}
+
+.time-slider .tooltips .active {
     font-weight: bold;
 }
 

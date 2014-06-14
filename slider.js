@@ -60,18 +60,18 @@ d3.timeSlider = function module() {
                 }
 
                 if (seconds < 1 * MIN) {
-                    return seconds + 's';
+                    return '-' + seconds + 's';
                 }
 
                 if (seconds < 1 * HOUR) {
-                    return seconds / 60 + 'm';
+                    return '-' + seconds / 60 + 'm';
                 }
 
                 if (seconds < 1 * DAY) {
-                    return seconds / (60 * 60) + 'h';
+                    return '-' + seconds / (60 * 60) + 'h';
                 }
 
-                return seconds / (60 * 60 * 24) + 'd';
+                return '-' + seconds / (60 * 60 * 24) + 'd';
             },
         },
 
@@ -125,13 +125,16 @@ d3.timeSlider = function module() {
                 mouse: tooltipsContainer.append('div').attr("class", 'mouse'),
             };
 
-            tooltips.from.html('from:<br/>');
-            tooltips.until.html('to:<br/>');
+            tooltips.from.html('<span>from:</span>');
+            tooltips.until.html('<span>to:</span>');
 
             var tooltipTexts = {
                 from: tooltips.from.append('span'),
                 until: tooltips.until.append('span')
-            }
+            };
+
+            tooltips.from.append('a').text('custom');
+            tooltips.until.append('a').text('custom');
 
             // hover DIV
             var sliderDiv = mainDiv.append('div')
@@ -148,8 +151,8 @@ d3.timeSlider = function module() {
 
                 var pos = d3.event.offsetX || d3.event.layerX,
                     active = nearestHandler(pos);
-                tooltipTexts[active].classed('active', true);
-                tooltipTexts[invert(active)].classed('active', false);
+                tooltips[active].classed('active', true);
+                tooltips[invert(active)].classed('active', false);
 
             }).on('mouseenter', function () {
 

@@ -26,9 +26,10 @@
         <div id="slider1"></div>
     </div>
     <script>
-        var ts = d3.timeSlider().onChange(function (value) {
+        var ts = new mt.TimeSlider('#slider1');
+
+        ts.onChange(function (value) {
             console.warn("Value changed to", value);
         });
-        d3.select('#slider1').call(ts);
     </script>
 </body>

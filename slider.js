@@ -185,16 +185,20 @@ var mt = {};
         // tooltips control
         mainDiv.on('mousemove', function () {
 
-            // updateMouseTooltip();
-            if (!dragging) {
-
+            if (!dragging)
+            {
                 var pos = d3EventMousePos(mainDiv);
-                    active = getActiveHandle(pos);
+
+                active = getActiveHandle(pos);
+
                 tooltips[active].classed('active', true);
                 tooltips[invert(active)].classed('active', false);
 
                 handles[active].classed('active', true);
                 handles[invert(active)].classed('active', false);
+
+                // write the tentative moment in the corresponding tooltip
+                updateMouseTooltip(pos);
             }
 
         }).on('mouseenter', function () {
@@ -309,10 +313,11 @@ var mt = {};
 
         function updateMouseTooltip(pos)
         {
-            var val = FORMATTERS.dateFromSecondsAgo(pos2val(pos));
-            tooltips.mouse
+            tooltipTexts[active].text( FORMATTERS.dateFromSecondsAgo(pos2val(pos)) );
+
+            /*tooltips.mouse
                 .style("left", FORMATTERS.pct( pos / width ))
-                .text(val);
+                .text(val);*/
 
         }
 

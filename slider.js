@@ -15,9 +15,10 @@ d3.timeSlider = function module() {
                 10 * MIN,
                 30 * MIN,
                 1 * HOUR,
-                3 * HOUR,
+                4 * HOUR,
                 12 * HOUR,
                 1 * DAY,
+                4 * DAY,
                 7 * DAY,
                 30 * DAY
             ]
@@ -112,18 +113,19 @@ d3.timeSlider = function module() {
             var tooltipsContainer = mainDiv.append('div').attr("class", "tooltips");
 
             var tooltips = {
-                from: tooltipsContainer.append('div').attr("class", FROM).html('<span>from:</span>'),
-                until: tooltipsContainer.append('div').attr("class", UNTIL).html('<span>to:</span>'),
+                from: tooltipsContainer.append('div').attr("class", FROM),
+                until: tooltipsContainer.append('div').attr("class", UNTIL),
                 mouse: tooltipsContainer.append('div').attr("class", 'mouse')
             };
 
             var tooltipTexts = {
-                from: tooltips.from.append('span'),
-                until: tooltips.until.append('span')
+                from: tooltips.from.append('span').attr("class", "dt"),
+                until: tooltips.until.append('span').attr("class", "dt")
             };
 
-            tooltips.from.append('a').text('custom');
-            tooltips.until.append('a').text('custom');
+            // Links to customize the moment
+            // tooltips.from.append('a').text('custom');
+            // tooltips.until.append('a').text('custom');
 
             // hover DIV
             var sliderDiv = mainDiv.append('div')
@@ -347,7 +349,7 @@ d3.timeSlider = function module() {
             }
 
             /**
-             * Given a position of a mouse click, moves one slider handle to that position
+             * Moves the slider {handle} to the position {pos}
              */
             function moveHandle(handle, pos)
             {

@@ -1,6 +1,6 @@
 .time-slider {
     margin: 0 .6em .6em .6em;
-    padding-top: 4em;
+    padding-top: 3em;
     cursor: pointer;
     position: relative;
 }
@@ -76,7 +76,7 @@
 }
 
 .time-slider .axis text {
-    font-size: 11px;
+    font-size: .7em;
 }
 
 
@@ -89,16 +89,26 @@
 
 .time-slider .tooltips a {
     color: #66f;
+    visibility: hidden;
 }
+
 .time-slider .tooltips a:hover {
     color: #00f;
     text-decoration: underline;
 }
 
-.time-slider .tooltips div {
-    padding: .6em;
+.time-slider .tooltips div:hover a {
+    visibility: visible;
+}
+
+.time-slider .tooltips > div {
     position: absolute;
     top: 0;
+}
+
+.time-slider .tooltips .dt {
+    background: #e0e0e0;
+    padding: .6em;
     font-size: .7em;
     vertical-align: middle;
     line-height: 1em;
@@ -107,8 +117,8 @@
 }
 
 .time-slider .tooltips span, .time-slider .tooltips a {
-    float: left;
-    clear: both;
+/*    float: left;*/
+/*    clear: both;*/
 }
 
 .time-slider .tooltips .active {
@@ -117,12 +127,14 @@
 
 .time-slider .tooltips .from {
     left: 0;
-    padding-left: 0;
+    /*padding-left: 0;*/
+    /*border-right: 1px dotted #e0e0e0;*/
 }
 
 .time-slider .tooltips .until {
     right: 0;
-    padding-right: 0;
+    /*padding-right: 0;*/
+    /*border-left: 1px dotted #e0e0e0;*/
 }
 
 .time-slider .tooltips .mouse {

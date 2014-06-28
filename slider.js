@@ -273,17 +273,17 @@ var mt = {};
         // ---- Private functions
 
 
-        function nearestHandler(pos)
+        function nearestHandle(pos)
         {
             var currLpos = val2left(value[FROM]),
                 currRpos = val2left(value[UNTIL]),
-                active = UNTIL;
+                handle = UNTIL;
 
             if (Math.abs(pos - currLpos) < Math.abs(pos - currRpos)){
-                active = FROM;
+                handle = FROM;
             }
 
-            return active;
+            return handle;
         }
 
         function posIsAtTheRightOfHandle(handle, pos)
@@ -298,7 +298,7 @@ var mt = {};
             return posIsAtTheRightOfHandle(UNTIL, pos) ? UNTIL : FROM;
 
             // Another option is to return the nearest handle
-            // return nearestHandler(pos);
+            // return nearestHandle(pos);
         }
 
         function updateTooltipsText()

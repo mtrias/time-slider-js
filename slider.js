@@ -396,11 +396,19 @@ var mt = {};
                 var oldPos = FORMATTERS.pct(val2pct(currentValue)),
                     newPos = FORMATTERS.pct(val2pct(newValue));
 
+                // set the new handler value
                 value[handle] = newValue;
-                console.log("New value {from:%s, until:%s} handler:%s. New pos %s", value.from, value.until, handle, newPos);
 
                 // disallow intervals of less than 1 minute
-                if ( !intervalIsBigEnough(value[FROM], value[UNTIL]) ) { console.error('problem', value, value[ UNTIL ] + 60); return; }
+                if ( !intervalIsBigEnough(value[FROM], value[UNTIL]) ) {
+                    console.error('problem', value, value[ UNTIL ] + 60);
+
+                    //restore the previous handler value and cancel the move
+                    value[handle] = currentValue;
+                    return;
+                }
+
+                console.log("New value {from:%s, until:%s} handler:%s. New pos %s", value.from, value.until, handle, newPos);
 
                 if ( UNTIL === handle )
                 {

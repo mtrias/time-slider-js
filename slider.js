@@ -441,7 +441,7 @@ var mt = {};
 
         function onDrag()
         {
-            console.log("dragged handler %s", active);
+            // console.debug("dragged handler %s", active);
             moveHandle(active, d3EventMousePos(mainDiv));
         }
 

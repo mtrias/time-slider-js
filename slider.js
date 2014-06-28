@@ -374,6 +374,16 @@ d3.timeSlider = function module() {
              */
             function moveHandle(handle, pos)
             {
+                // if moving after the right edge, then set it to the right edge
+                if (pos > width) {
+                    pos = width;
+                }
+
+                // if moving before the left edge, then set it to the left edge
+                if (pos < 0) {
+                    pos = 0;
+                }
+
                 var newValue = pos2val(pos),
                     currentValue = value[handle];
                 console.debug('moving handle %s to position: %f/%2f, value: %f', handle, pos, (width - pos) / width, newValue);

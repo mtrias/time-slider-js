@@ -143,7 +143,7 @@ var mt = {};
             range = _(CONF.steps).sortBy().value(),
             domain = _.map(range, function (val, ind, range) { return ind ? ind/(range.length - 1) : 0; } );
 
-        scale.range( range ).domain( domain );
+        scale.rangeRound( range ).domain( domain );
 
         console.debug("domain", domain);
         console.debug("range", range);

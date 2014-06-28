@@ -419,7 +419,6 @@ var mt = {};
             }
 
             updateTooltipsText();
-            notifyChange();
         }
 
         function notifyChange()
@@ -436,6 +435,7 @@ var mt = {};
 
             // moving the closest handler to the position _pos_
             moveHandle(active, pos);
+            notifyChange();
             stopPropagation();
         }
 
@@ -465,6 +465,7 @@ var mt = {};
         function onDragEnd()
         {
             dragging = false;
+            notifyChange();
         }
 
 

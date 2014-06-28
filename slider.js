@@ -56,9 +56,14 @@ d3.timeSlider = function module() {
 
         drag = d3.behavior.drag(),
 
+        /**
+         * A boolean to know when there's a current dragging operation
+         */
+        dragging = false,
+
         formatters = {
             pct: d3.format(".2%"),
-            secondsAgo: function (seconds) {
+            dateFromSecondsAgo: function (seconds) {
                 if (0 == seconds) return 'now';
                 return moment().subtract('seconds', seconds).format("h:mma - ll");
             },
@@ -137,18 +142,17 @@ d3.timeSlider = function module() {
             // tooltips control
             mainDiv.on('mousemove', function () {
 
-                updateTooltipsText();
-                // updateMouseTooltip(d3.event.offsetX || d3.event.layerX);
+                // updateMouseTooltip();
+                if (!dragging) {
 
-                var pos = d3EventMousePos(); // d3.event.offsetX || d3.event.layerX,
-                    active = nearestHandler(pos);
-                tooltips[active].classed('active', true);
-                tooltips[invert(active)].classed('active', false);
+                    var pos = d3EventMousePos();
+                        active = getActiveHandle(pos);
+                    tooltips[active].classed('active', true);
+                    tooltips[invert(active)].classed('active', false);
 
-                // console.debug("mousemove POS", d3.event.offsetX, d3.event.layerX);
-
-                handles[active].classed('active', true);
-                handles[invert(active)].classed('active', false);
+                    handles[active].classed('active', true);
+                    handles[invert(active)].classed('active', false);
+                }
 
             }).on('mouseenter', function () {
 
@@ -214,6 +218,8 @@ d3.timeSlider = function module() {
 
 
             drag.on("drag", onDrag);
+            drag.on("dragstart", onDragStart);
+            drag.on("dragend", onDragEnd);
 
             sliderDiv.on("click", onClick);
 
@@ -230,7 +236,9 @@ d3.timeSlider = function module() {
 
 
             function d3EventMousePos() {
-                return Math.max(0, Math.min(width, d3.event.x));
+                return d3.mouse(mainDiv.node())[0];
+                // return d3.event.offsetX || d3.event.layerX;
+                // return Math.max(0, Math.min(width, d3.event.x));
             }
 
             function nearestHandler(pos) {
@@ -247,13 +255,26 @@ d3.timeSlider = function module() {
                 return active;
             }
 
+            function posIsAtTheRightOfHandle(handle, pos) {
+                return pos > val2left(value[handle]);
+            }
+
+            function getActiveHandle(pos) {
+
+                // the active handle is the one at the left of the mouse
+                return posIsAtTheRightOfHandle(UNTIL, pos) ? UNTIL : FROM;
+
+                // Another option is to return the nearest handle
+                // return nearestHandler(pos);
+            }
+
             function updateTooltipsText() {
-                tooltipTexts[FROM].text( formatters.secondsAgo(value[FROM]) );
-                tooltipTexts[UNTIL].text( formatters.secondsAgo(value[UNTIL]) );
+                tooltipTexts[FROM].text( formatters.dateFromSecondsAgo(value[FROM]) );
+                tooltipTexts[UNTIL].text( formatters.dateFromSecondsAgo(value[UNTIL]) );
             }
 
             function updateMouseTooltip(pos) {
-                var val = formatters.secondsAgo(pos2val(pos));
+                var val = formatters.dateFromSecondsAgo(pos2val(pos));
                 tooltips.mouse
                     .style("left", formatters.pct( pos / width ))
                     .text(val);
@@ -355,7 +376,7 @@ d3.timeSlider = function module() {
             {
                 var newValue = pos2val(pos),
                     currentValue = value[handle];
-                console.debug('clicked position: %f/%2f, value: %f', pos, (width - pos) / width, newValue);
+                console.debug('moving handle %s to position: %f/%2f, value: %f', handle, pos, (width - pos) / width, newValue);
 
                 if (currentValue !== newValue) {
                     var oldPos = formatters.pct(val2pct(currentValue)),
@@ -396,8 +417,8 @@ d3.timeSlider = function module() {
 
             function onClick()
             {
-                var pos = d3.event.offsetX || d3.event.layerX,
-                    active = nearestHandler(pos);
+                var pos = d3EventMousePos(),
+                    active = getActiveHandle(pos);
 
                 // moving the closest handler to the position _pos_
                 moveHandle(active, pos);
@@ -406,18 +427,30 @@ d3.timeSlider = function module() {
 
             function onDrag()
             {
+                console.log("dragged handler %s", active);
+                moveHandle(active, d3EventMousePos());
+            }
+
+            function onDragStart()
+            {
+                dragging = true;
+
                 var target = d3.select(d3.event.sourceEvent.target);
 
-                if ( target.classed('handle-from') ) {
+                if ( target.classed('from') ) {
                     active = FROM;
 
-                } else if ( target.classed('handle-until') ) {
+                } else if ( target.classed('until') ) {
                     active = UNTIL;
 
-                }
+                } else throw "error 434";
 
-                console.log("drag handler");
-                moveHandle(active, d3EventMousePos());
+                console.warn("Drag started on handler %s", active);
+            }
+
+            function onDragEnd()
+            {
+                dragging = false;
             }
 
             function stopPropagation()

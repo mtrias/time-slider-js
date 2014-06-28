@@ -217,8 +217,8 @@ d3.timeSlider = function module() {
 
             // Adjust all things after a window resize
             d3.select(window).on('resize', function () {
-                width = parseInt(container.style("width"), 10);
-                axisScale.range([width, 0]);
+                width = mainDiv[0][0].clientWidth;
+                axisScale.range(getAxisRange());
                 axisContainer.attr("width", width);
                 axisContainer.transition().call(axis);
             });
@@ -271,6 +271,13 @@ d3.timeSlider = function module() {
                 return (handler === UNTIL) ? FROM : UNTIL;
             }
 
+            function getAxisRange() {
+                return _.chain(scale.domain())
+                    .map(function (val) { return val * width; })
+                    .reverse()
+                    .value();
+            }
+
             function createAxis(container)
             {
                 axis = d3.svg.axis()
@@ -286,7 +293,7 @@ d3.timeSlider = function module() {
                 //var axis_domain = _.map(scale.range(), function (seconds) { return moment().add('s', seconds).toDate(); });
                 //var axis_domain = _.map(scale.range(), function (val, ind, domain) { return ind ? (width / domain.length) * ind : 0; });
                 var axis_domain = scale.range(),
-                    axis_range = _.chain(scale.domain()).map(function (val) { return val * width; }).reverse().value();
+                    axis_range = getAxisRange();
 
                 console.log("axis domain", axis_domain);
                 console.log("axis range", axis_range);

@@ -130,7 +130,7 @@ var mt = {};
              * The scale of the slider, it transforms the domain [0, 1] (a percentage of the slider) to the range of time/seconds ago
              * Is really a polylinear scale, so the domain is not just [0, 1] but a serie of intermediate numbers, as well as the range
              */
-            scale = d3.scale.linear(),
+            scale = d3.scale.linear().clamp(true),
 
             drag = d3.behavior.drag(),
 
@@ -388,16 +388,6 @@ var mt = {};
          */
         function moveHandle(handle, pos)
         {
-            // if moving after the right edge, then set it to the right edge
-            if (pos > width) {
-                pos = width;
-            }
-
-            // if moving before the left edge, then set it to the left edge
-            if (pos < 0) {
-                pos = 0;
-            }
-
             var newValue = pos2val(pos),
                 currentValue = value[handle];
             console.debug('moving handle %s to position: %f/%2f, value: %f', handle, pos, (width - pos) / width, newValue);
